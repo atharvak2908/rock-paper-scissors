@@ -9,8 +9,6 @@ Play against the computer and track your wins, losses, and ties — your score i
 
 👉 [Play it here!](https://atharvak2908.github.io/rock-paper-scissors/)
 
-> **Note:** Replace the link with your actual GitHub Pages URL after you push your project.
-
 ---
 
 ## 🕹️ How to Play
