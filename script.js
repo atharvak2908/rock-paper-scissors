@@ -1,119 +1,156 @@
-let score = JSON.parse(localStorage.getItem('score')) || {
-    wins: 0,
-    losses: 0,
-    ties: 0
-}; // Default Operator
-
-updateScoreElement();
-
-/*
-if(!score)
-{
-    score = {
-        wins: 0,
-        losses: 0,
-        ties: 0
+document.addEventListener('DOMContentLoaded', () => {
+    const game = {
+        score: JSON.parse(localStorage.getItem('rps-score')) || {
+            wins: 0,
+            losses: 0,
+            ties: 0
+        },
+        isAutoPlaying: false,
+        autoPlayInterval: null
     };
-}
-*/
-
-function playGame(playerMove)
-{
-    const computerMove = pickComputerMove();
-    let result = '';
-    if(playerMove === 'scissors')
+    const elements = {
+        moveButtons: document.querySelectorAll('.move-button'),
+        resultDisplay: document.getElementById('result'),
+        computerMoveDisplay: document.getElementById('computer-move'),
+        winsDisplay: document.getElementById('wins'),
+        lossesDisplay: document.getElementById('losses'),
+        tiesDisplay: document.getElementById('ties'),
+        resetButton: document.getElementById('reset'),
+        autoPlayButton: document.getElementById('auto-play')
+    };
+    initGame();
+    elements.moveButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            if(!game.isAutoPlaying)
+            {
+                const playerMove = button.dataset.move;
+                playGame(playerMove);
+            }
+        });
+    });
+    elements.resetButton.addEventListener('click', resetScore);
+    elements.autoPlayButton.addEventListener('click', toggleAutoPlay);
+    function initGame()
     {
-        if(computerMove === 'rock')
-        {
-            result = 'You Lose.';
+        updateScoreDisplay();
+    }
+    function playGame(playerMove)
+    {
+        highlightPlayerMove(playerMove);
+        setTimeout(() => {
+            const computerMove = pickComputerMove();
+            displayComputerMove(computerMove);
+            const result = determineWinner(playerMove, computerMove);
+            updateScore(result);
+            displayResult(result, playerMove, computerMove);
+        }, 500);
+    }
+    function highlightPlayerMove(move)
+    {
+        elements.moveButtons.forEach(button => {
+            button.classList.remove('active');
+            if(button.dataset.move === move)
+            {
+                button.classList.add('active');
+            }
+        });
+    }
+    function pickComputerMove()
+    {
+        const moves = ['rock', 'paper', 'scissors'];
+        const randomIndex = Math.floor(Math.random() * moves.length);
+        return moves[randomIndex];
+    }
+    function displayComputerMove(move)
+    {
+        elements.computerMoveDisplay.innerHTML = `
+            <img src="images/${move}-emoji.png" alt="${move}" class="move-icon">
+        `;
+        elements.computerMoveDisplay.classList.remove('computer-placeholder');
+        elements.computerMoveDisplay.classList.add('computer-move');
+    }
+    function determineWinner(playerMove, computerMove)
+    {
+        if(playerMove === computerMove)
+            return 'tie';
+        const winningConditions = {
+            rock: 'scissors',
+            paper: 'rock',
+            scissors: 'paper'
+        };
+        if(winningConditions[playerMove] === computerMove)
+            return 'win';
+        else
+            return 'lose';
+    }
+    function updateScore(result)
+    {
+        if (result === 'win') {
+            game.score.wins++;
+        } else if (result === 'lose') {
+            game.score.losses++;
+        } else {
+            game.score.ties++;
         }
-        else if(computerMove === 'paper')
+        localStorage.setItem('rps-score', JSON.stringify(game.score));
+        updateScoreDisplay();
+    }
+    function updateScoreDisplay()
+    {
+        elements.winsDisplay.textContent = game.score.wins;
+        elements.lossesDisplay.textContent = game.score.losses;
+        elements.tiesDisplay.textContent = game.score.ties;
+    }
+    function displayResult(result, playerMove, computerMove)
+    {
+        let message = '';
+        let resultClass = '';
+        switch(result)
         {
-            result = 'You Win.'
+            case 'win':
+                message = `VICTORY! ${playerMove.toUpperCase()} BEATS ${computerMove.toUpperCase()}`;
+                resultClass = 'win';
+                break;
+            case 'lose':
+                message = `DEFEAT! ${computerMove.toUpperCase()} BEATS ${playerMove.toUpperCase()}`;
+                resultClass = 'lose';
+                break;
+            case 'tie':
+                message = `STANDOFF! BOTH CHOSE ${playerMove.toUpperCase()}`;
+                resultClass = 'tie';
+                break;
         }
-        else if(computerMove === 'scissors')
+        elements.resultDisplay.textContent = message;
+        elements.resultDisplay.className = resultClass;
+    }
+    function resetScore()
+    {
+        game.score = { wins: 0, losses: 0, ties: 0 };
+        localStorage.setItem('rps-score', JSON.stringify(game.score));
+        updateScoreDisplay();
+        elements.resultDisplay.textContent = '';
+        elements.resultDisplay.className = '';
+        elements.computerMoveDisplay.innerHTML = '<span>?</span>';
+        elements.computerMoveDisplay.classList.add('computer-placeholder');
+        elements.computerMoveDisplay.classList.remove('computer-move');        
+        elements.moveButtons.forEach(button => {
+            button.classList.remove('active');
+        });
+    }
+    function toggleAutoPlay()
+    {
+        game.isAutoPlaying = !game.isAutoPlaying;
+        elements.autoPlayButton.textContent = game.isAutoPlaying ? 'STOP BATTLE' : 'AUTO BATTLE';
+        if(game.isAutoPlaying)
         {
-            result = 'Tie.'
+            game.autoPlayInterval = setInterval(() => {
+                const randomMove = pickComputerMove();
+                playGame(randomMove);
+            }, 1000);
+        }
+        else
+        {
+            clearInterval(game.autoPlayInterval);
         }
     }
-    else if(playerMove === 'paper')
-    {
-        if(computerMove === 'rock')
-        {
-            result = 'You Win.';
-        }
-        else if(computerMove === 'paper')
-        {
-            result = 'Tie.'
-        }
-        else if(computerMove === 'scissors')
-        {
-            result = 'You Lose.'
-        }
-    }
-    else if(playerMove === 'rock')
-    {
-        if(computerMove === 'rock')
-        {
-            result = 'Tie.';
-        }
-        else if(computerMove === 'paper')
-        {
-            result = 'You Lose.'
-        }
-        else if(computerMove === 'scissors')
-        {
-            result = 'You Win.'
-        }
-    }
-
-    if(result === 'You Win.')
-    {
-        score.wins += 1;
-    }
-    else if(result === 'You Lose.')
-    {
-        score.losses += 1;
-    }
-    else if(result === 'Tie.')
-    {
-        score.ties += 1;
-    }
-
-    localStorage.setItem('score', JSON.stringify(score));
-
-    updateScoreElement();
-
-    document.querySelector('.js-result').innerHTML = result;
-
-    document.querySelector('.js-moves').innerHTML = `You
-        <img src="images/${playerMove}-emoji.png" class="move-icon">
-        <img src="images/${computerMove}-emoji.png" class="move-icon">
-        Computer`;
-
-}
-
-function updateScoreElement()
-{
-    document.querySelector('.js-score').innerHTML = `Wins: ${score.wins}, Losses: ${score.losses}, Ties: ${score.ties}`;
-}
-
-function pickComputerMove()
-{
-    let computerMove = '';
-    let randomNumber = Math.random();
-    if(randomNumber >= 0 && randomNumber < 1/3)
-    {
-        computerMove = 'rock';
-    }
-    else if(randomNumber > 1/3 && randomNumber < 2/3)
-    {
-        computerMove = 'paper';
-    }
-    else if(randomNumber >= 2/3 && randomNumber < 1)
-    {
-        computerMove = 'scissors';
-    }
-    console.log(computerMove);
-    return computerMove;
-}
+});

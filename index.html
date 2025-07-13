@@ -3,36 +3,60 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rock Paper Scissors</title>
+    <title>Ultimate RPS Battle</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <p class="title">Rock Paper Scissors</p>
-    <button onclick="
-        playGame('rock');
-    " class="move-button"><img src="images/rock-emoji.png" class="move-icon"></button>
+    <div class="game-container">
+        <header class="game-header">
+            <p class="game-title">ULTIMATE RPS SHOWDOWN</p>
+            <div class="score-display">
+                <span class="score wins">WINS: <span id="wins">0</span></span>
+                <span class="score losses">LOSSES: <span id="losses">0</span></span>
+                <span class="score ties">TIES: <span id="ties">0</span></span>
+            </div>
+        </header>
+        <div class="battle-arena">
+            <div class="player-section">
+                <h2 class="player-title">PLAYER</h2>
+                <div class="move-buttons">
+                    <button class="move-button rock" data-move="rock">
+                        <img src="images/rock-emoji.png" alt="Rock" class="move-icon">
+                        <div class="move-label">ROCK</div>
+                    </button>
+                    <button class="move-button paper" data-move="paper">
+                        <img src="images/paper-emoji.png" alt="Paper" class="move-icon">
+                        <div class="move-label">PAPER</div>
+                    </button>
+                    <button class="move-button scissors" data-move="scissors">
+                        <img src="images/scissors-emoji.png" alt="Scissors" class="move-icon">
+                        <div class="move-label">SCISSORS</div>
+                    </button>
+                </div>
+            </div>
 
-    <button onclick="
-        playGame('paper');
-    " class="move-button"><img src="images/paper-emoji.png" class="move-icon"></button>
+            <div class="vs-divider">
+                <span>VS</span>
+            </div>
 
-    <button onclick="
-        playGame('scissors');
-    " class="move-button"><img src="images/scissors-emoji.png" class="move-icon"></button>
+            <div class="computer-section">
+                <h2 class="computer-title">COMPUTER</h2>
+                <div class="computer-move-display">
+                    <div class="computer-placeholder" id="computer-move">
+                        <span>?</span>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-    <p class="js-result result"></p>
-    <p class="js-moves"></p>
-    <p class="js-score score"></p>
+        <div class="result-display" id="result"></div>
 
-    <button onclick="
-        score.wins = 0;
-        score.losses = 0;
-        score.ties = 0;
-        localStorage.setItem('score', JSON.stringify(score));
-        updateScoreElement();
-        " class="reset-button">
-        Reset Score
-    </button> 
+        <div class="action-buttons">
+            <button class="action-button reset" id="reset">RESET BATTLE</button>
+            <button class="action-button auto-play" id="auto-play">AUTO BATTLE</button>
+        </div>
+    </div>
 
     <script src="script.js"></script>
 </body>
